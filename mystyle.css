@@ -1,0 +1,43 @@
+
+
+.number_button
+{
+    background-color: rgb(128, 128, 128);
+    height: 20px;
+    width: 20px;
+    border: 1px solid rgb(59, 80, 65);
+    float: left;
+}
+
+.number_panel_row
+{
+    height: 22px;
+    width: 66px;
+    background-color: rgb(254, 254, 254);
+    border: 1px solid rgb(208, 53, 53);
+}
+
+#action_panel
+{
+    height: 100px;
+    width: 50px;
+    background-color: rgb(205, 195, 206);
+    border: 1px solid rgb(208, 53, 53);
+}
+
+.big_component
+{
+    
+    border: 1px solid rgb(208, 53, 53);
+    float: left;
+}
+
+#jackPot_panel
+{
+    height: 50px;
+    width: 50px;
+    float: left; 
+    border: 1px solid rgb(208, 53, 53);
+    background-color: antiquewhite;
+    font-size: x-large;
+}

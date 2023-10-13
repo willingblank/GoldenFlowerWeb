@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoldenFlower</title>
+    <link rel="stylesheet" type="text/css" href="mystyle.css">
+</head>
+<script>
+    var playerList=new Array();
+    var playerNumber = 0;
+    var currentScore = 0;
+    var lastCurrentScore = 0;
+    var gameBeginFlag = 0;
+    var playerPointer = 0;
+    var jackPotNumber = 0;
+
+    let tempColorList = new Array;
+    tempColorList[0] = "SpringGreen";
+    tempColorList[1] = "LightSlateGray";
+    tempColorList[2] = "MediumTurquoise";
+    tempColorList[3] = "DeepSkyBlue";
+
+
+    class Player 
+    {
+        constructor(playerNum, name, score, color, state) 
+        {
+            this.playerNum = playerNum;
+            this.name = name;
+            this.score = score;
+            this.color = color;
+            this.state = state;
+        }
+    }
+
+    function updateDateAfterAction()
+    {
+        for(i=0;i<playerNumber;i++)
+        {
+            let temper = document.getElementById("player"+i);
+            temper.innerText = playerList[i].score;
+        }
+        document.getElementById("jackPot_panel").innerText = jackPotNumber;
+        
+        for(i=0;i<playerNumber;i++)
+        {
+            let ctrScoreDiv = document.getElementById("player"+playerList[i].playerNum);
+            ctrScoreDiv.style.backgroundColor = tempColorList[i];
+        }
+
+        let ctrScoreDiv = document.getElementById("player"+playerList[playerPointer].playerNum);
+        ctrScoreDiv.style.backgroundColor = "white";
+
+    }
+
+    // function randomColor()
+    // {
+    //     let tempColorList = new Array;
+    //     tempColorList[0] = "SpringGreen";
+    //     tempColorList[1] = "LightSlateGray";
+    //     tempColorList[2] = "MediumTurquoise";
+    //     tempColorList[3] = "DeepSkyBlue";
+
+    //     return tempColorList[playerNumber];
+    // }
+
+    function startGame()
+    {
+        if(gameBeginFlag == 1) return;
+        if(playerNumber<2) return;
+
+        gameBeginFlag = 1;
+        for(i=0;i<playerNumber;i++)
+        {
+            playerList[i].score = playerList[i].score - 1; 
+            playerList[i].state = "playing";
+        }
+        jackPotNumber = jackPotNumber + playerNumber;
+        
+        //jump to Play-1 then start the program
+        playerPointer = 0;
+        updateDateAfterAction();
+    }
+
+    function restartGame()
+    {
+        console.log("game restart!");
+        for(i=0;i<playerNumber;i++)
+        {
+            playerList[i].score = playerList[i].score - 1; 
+            playerList[i].state = "playing";
+        }
+        jackPotNumber = jackPotNumber + playerNumber;
+        playerPointer = 0;
+        updateDateAfterAction();
+    }
+
+    function add_player()
+    {
+        var name=prompt("请输入您的名字",""); // 弹出input框
+        if(name != null)
+        {
+            //let temp_color = randomColor();
+            let temp_color = tempColorList[playerNumber];
+            //console.log(temp_color);
+            playerList[playerNumber] = new Player(playerNumber,name,0,temp_color,"idle");
+            //console.log(playerList[playerNumber]);
+            playerNumber++;
+
+            var additional=document.getElementById('rank_panel');
+            var CrtDiv=document.createElement('div');
+            CrtDiv.style.background=playerList[playerNumber-1].color;
+            CrtDiv.style.height="20px";
+            CrtDiv.style.width="100px";
+            var CrtDiv_score=document.createElement('div');
+            CrtDiv_score.id="player"+playerList[playerNumber-1].playerNum;
+            
+            CrtDiv_score.style.opacity="0.9";
+            //CrtDiv_score.style.background="red";
+            CrtDiv_score.style.height="20px";
+            CrtDiv_score.style.width="30px";
+            CrtDiv_score.style.float="left";
+            //console.log(CrtDiv_score);
+            var CrtDiv_name=document.createElement('div');
+            CrtDiv_name.style.opacity="0.5";
+            CrtDiv_name.style.background="white";
+            CrtDiv_name.style.height="20px";
+            CrtDiv_name.style.width="40px";
+            CrtDiv_name.style.float="left";
+            CrtDiv_score.appendChild(document.createTextNode(playerList[playerNumber-1].score));
+            CrtDiv.appendChild(CrtDiv_score);
+            CrtDiv_name.appendChild(document.createTextNode(name));
+            CrtDiv.appendChild(CrtDiv_name);
+            additional.appendChild(CrtDiv);
+        }
+    }
+
+    let NumberBit = 1;
+    function numberadd_score(var1)
+    {
+        if(gameBeginFlag != 1) return;
+        if(var1 == -2) 
+        {
+            currentScore = 0;
+        }
+        else if(var1 == -1) 
+        {
+            currentScore = parseInt(currentScore/10);
+        }
+        else
+        {
+            for(let i=0;i<NumberBit;i++)
+            {
+                currentScore = currentScore*10+var1;
+            }    
+        }
+        let temper1=document.getElementById("currentScore_monitor");
+        temper1.innerText = currentScore;
+        //console.log(currentScore);
+    }
+
+    function winTheGame(var1)
+    {
+        console.log("Player: "+playerList[var1].name+" win this round!");
+        playerList[var1].score += jackPotNumber;
+        jackPotNumber = 0;
+        updateDateAfterAction();
+        setTimeout(restartGame,2000);
+    }
+    function PointerNextOnce()
+    {
+        let idlePlayerNumber = 0;
+        
+        do
+        {
+            if(playerPointer<(playerNumber-1))
+                playerPointer++;
+            else   
+                playerPointer = 0;
+            console.log(playerList[playerPointer]);
+        }
+        while(playerList[playerPointer].state == "idle")
+
+        for(i=0;i<playerNumber;i++)
+        {
+            if(playerList[i].state == "idle")
+                idlePlayerNumber++;
+        }
+
+        if(idlePlayerNumber+1 >= playerNumber)
+            winTheGame(playerPointer);
+        
+        console.log(playerPointer);
+        updateDateAfterAction();
+        // if(playerPointer<(playerNumber-1))
+        //     playerPointer++;
+        // else
+        //     playerPointer=0;
+    }
+
+    function bet_action(blind)
+    {
+        if(blind == 1)
+        {
+            if(currentScore>=(lastCurrentScore/2))
+            {
+                playerList[playerPointer].score = playerList[playerPointer].score - currentScore;
+                lastCurrentScore = currentScore*2;
+            }
+            else
+            {
+                alert("你应该输入大于"+Math.ceil(lastCurrentScore/2)+"的数值");
+            }
+        }
+        else
+        {
+            if(currentScore>=lastCurrentScore)
+            {
+                //console.log(playerPointer);
+                playerList[playerPointer].score = playerList[playerPointer].score - currentScore;
+                lastCurrentScore = currentScore;
+            }
+            else
+            {
+                alert("你应该输入大于"+lastCurrentScore+"的数值");
+            }
+        }
+        jackPotNumber = jackPotNumber + currentScore;
+        PointerNextOnce();
+        
+        updateDateAfterAction();
+    }
+
+    function fold_action()
+    {
+        playerList[playerPointer].state = "idle";
+        PointerNextOnce();
+    }
+</script>
+
+<body>
+    <div class="big_component" id="rank_panel">
+        <button onclick="add_player()">add player</button>
+        <button onclick="startGame()">start game</button>
+    </div>
+    
+    <div class="big_component" id="number_panel">
+        <div class="number_panel_row">
+            <div class="number_button" onclick="numberadd_score(1)">1</div>
+            <div class="number_button" onclick="numberadd_score(2)">2</div>
+            <div class="number_button" onclick="numberadd_score(3)">3</div>
+        </div>
+        <div class="number_panel_row">
+            <div class="number_button" onclick="numberadd_score(4)">4</div>
+            <div class="number_button" onclick="numberadd_score(5)">5</div>
+            <div class="number_button" onclick="numberadd_score(6)">6</div>
+        </div>
+        <div class="number_panel_row">
+            <div class="number_button" onclick="numberadd_score(7)">7</div>
+            <div class="number_button" onclick="numberadd_score(8)">8</div>
+            <div class="number_button" onclick="numberadd_score(9)">9</div>
+        </div>
+        <div class="number_panel_row">
+            <div class="number_button" onclick="numberadd_score(0)">0</div>
+            <div class="number_button" onclick="numberadd_score(-1)">←</div>
+            <div class="number_button" onclick="numberadd_score(-2)">EC</div>
+        </div>
+
+    </div>
+    <div class="big_component" id="action_panel">
+        <div id="currentScore_monitor">0</div>
+        <button onclick="bet_action(0)">bet</button>
+        <button onclick="bet_action(1)">blind bet</button>
+        <button>open</button>
+        <button onclick="fold_action()">fold</button>
+    </div>
+
+    <div id="jackPot_panel">0</div>
+</body>
+
+</html>

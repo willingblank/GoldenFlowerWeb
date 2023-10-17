@@ -36,39 +36,35 @@
 
     function updateDateAfterAction()
     {
+        //更新玩家的分数
         for(i=0;i<playerNumber;i++)
         {
             let temper = document.getElementById("player"+i);
             temper.innerText = playerList[i].score;
         }
+        //更新奖池金额
         document.getElementById("jackPot_panel").innerText = jackPotNumber;
         
+        //玩家指示器更新
         for(i=0;i<playerNumber;i++)
         {
             let ctrScoreDiv = document.getElementById("player"+playerList[i].playerNum);
             ctrScoreDiv.style.backgroundColor = tempColorList[i];
         }
-
         let ctrScoreDiv = document.getElementById("player"+playerList[playerPointer].playerNum);
         ctrScoreDiv.style.backgroundColor = "white";
 
     }
 
-    // function randomColor()
-    // {
-    //     let tempColorList = new Array;
-    //     tempColorList[0] = "SpringGreen";
-    //     tempColorList[1] = "LightSlateGray";
-    //     tempColorList[2] = "MediumTurquoise";
-    //     tempColorList[3] = "DeepSkyBlue";
-
-    //     return tempColorList[playerNumber];
-    // }
 
     function startGame()
     {
         if(gameBeginFlag == 1) return;
-        if(playerNumber<2) return;
+        if(playerNumber<2) 
+        {
+            alert("请确保游戏玩家大于1人");
+            return;
+        }
 
         gameBeginFlag = 1;
         for(i=0;i<playerNumber;i++)
@@ -139,7 +135,11 @@
     let NumberBit = 1;
     function numberadd_score(var1)
     {
-        if(gameBeginFlag != 1) return;
+        if(gameBeginFlag != 1) 
+        {
+            alert("请先开始游戏！");
+            return;
+        }
         if(var1 == -2) 
         {
             currentScore = 0;
@@ -172,6 +172,7 @@
     {
         let idlePlayerNumber = 0;
         
+        // playerPointer 切换 
         do
         {
             if(playerPointer<(playerNumber-1))
@@ -182,25 +183,30 @@
         }
         while(playerList[playerPointer].state == "idle")
 
+        // 检测是否游戏结束
         for(i=0;i<playerNumber;i++)
         {
             if(playerList[i].state == "idle")
                 idlePlayerNumber++;
         }
-
         if(idlePlayerNumber+1 >= playerNumber)
             winTheGame(playerPointer);
         
+
         console.log(playerPointer);
         updateDateAfterAction();
-        // if(playerPointer<(playerNumber-1))
-        //     playerPointer++;
-        // else
-        //     playerPointer=0;
+
+
     }
 
     function bet_action(blind)
     {
+        if(gameBeginFlag != 1) 
+        {
+            alert("请先开始游戏！");
+            return;
+        }
+
         if(blind == 1)
         {
             if(currentScore>=(lastCurrentScore/2))
@@ -234,7 +240,43 @@
 
     function fold_action()
     {
+        if(gameBeginFlag != 1) 
+        {
+            alert("请先开始游戏！");
+            return;
+        }
         playerList[playerPointer].state = "idle";
+        PointerNextOnce();
+    }
+
+    function test()
+    {
+        console.log("test");
+    }
+    
+    function open_action()
+    {
+        if(gameBeginFlag != 1) 
+        {
+            alert("请先开始游戏！");
+            return;
+        }
+
+        playerList[playerPointer].score -= currentScore;
+        jackPotNumber += currentScore;
+        
+        updateDateAfterAction();
+
+        var fightPlayerNum=prompt("请输入你要进行决斗的角色",""); // 弹出input框
+        let result = confirm("你获胜了吗?");
+
+        if(result){
+            playerList[fightPlayerNum].state = "idle";
+        }
+        else{
+            playerList[playerPointer].state = "idle";
+        }
+
         PointerNextOnce();
     }
 </script>
@@ -272,7 +314,7 @@
         <div id="currentScore_monitor">0</div>
         <button onclick="bet_action(0)">bet</button>
         <button onclick="bet_action(1)">blind bet</button>
-        <button>open</button>
+        <button onclick="open_action()">open</button>
         <button onclick="fold_action()">fold</button>
     </div>
 

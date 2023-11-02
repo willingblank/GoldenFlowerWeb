@@ -10,7 +10,7 @@
     var playerList=new Array();
     var playerNumber = 0;
     var currentScore = 0;
-    var lastCurrentScore = 0;
+    var lastCurrentScore = 1;
     var gameBeginFlag = 0;
     var playerPointer = 0;
     var jackPotNumber = 0;
@@ -24,13 +24,14 @@
 
     class Player 
     {
-        constructor(playerNum, name, score, color, state) 
+        constructor(playerNum, name, score, color, state, checkstate) 
         {
             this.playerNum = playerNum;
             this.name = name;
             this.score = score;
             this.color = color;
             this.state = state;
+            this.checkstate = checkstate;
         }
     }
 
@@ -86,9 +87,11 @@
         {
             playerList[i].score = playerList[i].score - 1; 
             playerList[i].state = "playing";
+            playerList[i].checkstate = "nocheck";
         }
+        lastCurrentScore = 1;
         jackPotNumber = jackPotNumber + playerNumber;
-        playerPointer = 0;
+        //playerPointer = 0;
         updateDateAfterAction();
     }
 
@@ -102,7 +105,7 @@
             //let temp_color = randomColor();
             let temp_color = tempColorList[playerNumber];
             //console.log(temp_color);
-            playerList[playerNumber] = new Player(playerNumber,name,0,temp_color,"idle");
+            playerList[playerNumber] = new Player(playerNumber,name,0,temp_color,"idle","nocheck");
             //console.log(playerList[playerNumber]);
             playerNumber++;
 
@@ -117,7 +120,7 @@
             CrtDiv_score.style.opacity="0.9";
             //CrtDiv_score.style.background="red";
             CrtDiv_score.style.height="20px";
-            CrtDiv_score.style.width="30px";
+            CrtDiv_score.style.width="40px";
             CrtDiv_score.style.float="left";
             //console.log(CrtDiv_score);
             var CrtDiv_name=document.createElement('div');
@@ -132,6 +135,7 @@
             CrtDiv.appendChild(CrtDiv_name);
             additional.appendChild(CrtDiv);
         }
+        document.getElementById("newPlayerName").value = null;
     }
 
     let NumberBit = 1;
@@ -209,8 +213,15 @@
             return;
         }
 
-        if(blind == 1)
+        if(blind == 1)  // blind bet
         {
+            console.log(playerList[playerPointer].checkstate);
+            if(playerList[playerPointer].checkstate == "checked")
+            {
+                alert("你已经看过牌面 无法再blind bet 请重新选择行动");
+                return;
+            }
+
             if(currentScore>=(lastCurrentScore/2))
             {
                 playerList[playerPointer].score = playerList[playerPointer].score - currentScore;
@@ -219,10 +230,12 @@
             else
             {
                 alert("你应该输入大于"+Math.ceil(lastCurrentScore/2)+"的数值");
+                return;
             }
         }
-        else
+        else            // nomal bet
         {
+            playerList[playerPointer].checkstate = "checked";
             if(currentScore>=lastCurrentScore)
             {
                 //console.log(playerPointer);
@@ -232,11 +245,11 @@
             else
             {
                 alert("你应该输入大于"+lastCurrentScore+"的数值");
+                return;
             }
         }
         jackPotNumber = jackPotNumber + currentScore;
         PointerNextOnce();
-        
         updateDateAfterAction();
     }
 
@@ -264,12 +277,30 @@
             return;
         }
 
+        var fightPlayerNum=prompt("请输入你要进行决斗的角色序号",""); // 弹出input框
+        if(playerList[fightPlayerNum].state=="idle")
+        {
+            alert("无法对已经出局的玩家发起挑战 请重新选择..");
+            return;
+        }
+
+        if((fightPlayerNum>=playerNumber) | (fightPlayerNum<0)) 
+        {
+            alert("请输入正确的角色序号 请重新选择");
+            return;
+        }
+        if(fightPlayerNum == playerPointer)
+        {
+            alert("不能与自己决斗 请重新选择");
+            return;
+        }
+        let confirm_result =  confirm("你确定对 ("+playerList[fightPlayerNum].name+" )发起决斗吗？");
+        if(confirm_result == false) return;
+
         playerList[playerPointer].score -= currentScore;
         jackPotNumber += currentScore;
-        
         updateDateAfterAction();
 
-        var fightPlayerNum=prompt("请输入你要进行决斗的角色",""); // 弹出input框
         let result = confirm("你获胜了吗?");
 
         if(result){
@@ -285,6 +316,10 @@
 
 <body>
     <div class="big_component" id="rank_panel">
+        <div id="playerAdder">
+            请输入名称
+            <input id="newPlayerName" type="text">
+        </div>
         <div><button onclick="startGame()">start game</button></div>
         <div><button onclick="add_player()">add player</button></div>
     </div>
@@ -322,10 +357,7 @@
 
     <div id="jackPot_panel">0</div>
 
-    <div id="playerAdder">
-        请输入名称
-        <input id="newPlayerName" type="text">
-    </div>
+
 </body>
 
 </html>

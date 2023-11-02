@@ -94,7 +94,9 @@
 
     function add_player()
     {
-        var name=prompt("请输入您的名字",""); // 弹出input框
+        var name = document.getElementById("newPlayerName").value;
+        console.log("添加玩家："+name);
+        //var name=prompt("请输入您的名字",""); // 弹出input框
         if(name != null)
         {
             //let temp_color = randomColor();
@@ -319,6 +321,11 @@
     </div>
 
     <div id="jackPot_panel">0</div>
+
+    <div id="playerAdder">
+        请输入名称
+        <input id="newPlayerName" type="text">
+    </div>
 </body>
 
 </html>
